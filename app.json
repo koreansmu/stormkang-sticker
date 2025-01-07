@@ -12,7 +12,7 @@
     "ᴅᴇᴠ_ᴜʀʟ": "https://t.me/SlamDevs",
     "stack": "container",
     "env": {
-      "7542527679:AAHAJjgpymV0pqSTdGsTyapqmfZCk0YUNQA": {
+"7542527679:AAHAJjgpymV0pqSTdGsTyapqmfZCk0YUNQA": {
         "description": "ᴛʜᴇ ᴛᴇʟᴇɢʀᴀᴍ ʙᴏᴛ ᴛᴏᴋᴇɴ ᴛʜᴀᴛ ʏᴏᴜ ɢᴇᴛ ғʀᴏᴍ https://t.me/BotFather.",
         "required": true
       }
