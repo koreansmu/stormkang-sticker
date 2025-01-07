@@ -1,19 +1,19 @@
 {
-    "name": "kang-stickerbot",
-    "description": "A simple Telegram bot which creates sticker packs from other stickers, images, documents and URLs.",
-    "logo": "https://telegra.ph/file/6507910fd06d18dfaba82.jpg",
+    "name": "sᴛᴏʀᴍ ᴋᴀɴɢ-sᴛɪᴄᴋᴇʀ",
+    "description": ᴀ ꜱɪᴍᴘʟᴇ ᴛᴇʟᴇɢʀᴀᴍ ʙᴏᴛ ᴡʜɪᴄʜ ᴄʀᴇᴀᴛᴇꜱ ꜱᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋꜱ ꜰʀᴏᴍ ᴏᴛʜᴇʀ ꜱᴛɪᴄᴋᴇʀꜱ, ɪᴍᴀɢᴇꜱ, ᴅᴏᴄᴜᴍᴇɴᴛꜱ ᴀɴᴅ ᴜʀʟꜱ.",
+    "logo": "https://graph.org/file/b42d68bac4aa95b168a2a-fd169adbf1b7cb75c6.jpg",
     "keywords": [
       "bot",
       "telegram",
       "python"
     ],
-    "repository": "https://github.com/breakdowns",
-    "website": "https://github.com/breakdowns",
-    "success_url": "https://t.me/SlamDevs",
+    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ": "https://github.com/breakdowns",
+    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ": "https://github.com/breakdowns",
+    "ᴅᴇᴠ_ᴜʀʟ": "https://t.me/SlamDevs",
     "stack": "container",
     "env": {
-      "TOKEN": {
-        "description": "The Telegram bot token that you get from https://t.me/BotFather.",
+      "7542527679:AAHAJjgpymV0pqSTdGsTyapqmfZCk0YUNQA": {
+        "description": "ᴛʜᴇ ᴛᴇʟᴇɢʀᴀᴍ ʙᴏᴛ ᴛᴏᴋᴇɴ ᴛʜᴀᴛ ʏᴏᴜ ɢᴇᴛ ғʀᴏᴍ https://t.me/BotFather.",
         "required": true
       }
     },
