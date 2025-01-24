@@ -14,7 +14,7 @@ import json
 from typing import Optional, List
 from telegram.constants import ParseMode
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from telegram import TelegramError
+from telegram.error import TelegramError
 from telegram import Update, Bot
 from telegram.ext import CommandHandler, run_async, Updater, Handler, InlineQueryHandler
 from telegram.utils.helpers import escape_markdown
