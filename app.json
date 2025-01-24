@@ -1,5 +1,5 @@
 {
-    "name": "sᴛᴏʀᴍ ᴋᴀɴɢ-sᴛɪᴄᴋᴇʀ",
+    "name": "ʙɪʟʟᴀ ᴋᴀɴɢ-sᴛɪᴄᴋᴇʀ",
     "description": ᴀ ꜱɪᴍᴘʟᴇ ᴛᴇʟᴇɢʀᴀᴍ ʙᴏᴛ ᴡʜɪᴄʜ ᴄʀᴇᴀᴛᴇꜱ ꜱᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋꜱ ꜰʀᴏᴍ ᴏᴛʜᴇʀ ꜱᴛɪᴄᴋᴇʀꜱ, ɪᴍᴀɢᴇꜱ, ᴅᴏᴄᴜᴍᴇɴᴛꜱ ᴀɴᴅ ᴜʀʟꜱ.",
     "logo": "https://graph.org/file/b42d68bac4aa95b168a2a-fd169adbf1b7cb75c6.jpg",
     "keywords": [
@@ -7,8 +7,8 @@
       "telegram",
       "python"
     ],
-    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ": "https://t.me/storm_tech",
-    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ": "https://t.me/storm_core",
+    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀɴɴᴇʟ": "https://t.me/BillaSpace",
+    "sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ": "https://t.me/BillaCore",
     "ᴅᴇᴠ_ᴜʀʟ": "https://t.me/interstellarXd",
     "stack": "container",
     "env": {
