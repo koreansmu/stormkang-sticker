@@ -12,7 +12,7 @@ import logging
 import json
 
 from typing import Optional, List
-from telegram.constants import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram import TelegramError
 from telegram import Update, Bot
 from telegram.ext import CommandHandler, run_async, Updater, Handler, InlineQueryHandler
