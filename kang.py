@@ -91,7 +91,7 @@ def kang(bot: Bot, update: Update, args: List[str]):
 
         # Get the user's profile picture and name using Pyrogram
         try:
-            profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+            profile_photos = pyrogram_client.get_user_profile_photos(user.id)
             if profile_photos.total_count > 0:
                 profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
                 profile_picture.download('profile_pic.jpg')
@@ -212,7 +212,7 @@ def kangim(bot: Bot, update: Update, args: List[str]):
     # Handle custom background and text overlay
     background_color = args[0] if args else "white"
     try:
-        profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+        profile_photos = pyrogram_client.get_user_profile_photos(user.id)
         if profile_photos.total_count > 0:
             profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
             profile_picture.download('profile_pic.jpg')
@@ -276,7 +276,7 @@ def kangm(bot: Bot, update: Update, args: List[str]):
 
     try:
         # Fetch profile picture
-        profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+        profile_photos = pyrogram_client.get_user_profile_photos(user.id)
         if profile_photos.total_count > 0:
             # Download the profile picture
             profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
