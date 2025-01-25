@@ -310,8 +310,8 @@ def kang_message(bot: Bot, update: Update):
         img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
         draw = ImageDraw.Draw(img)
 
-        # Use default font provided by Pillow
-        font = ImageFont.truetype(ImageFont.load_default().path, 40)  # Default font, size adjustable
+        # Use default font from PIL (no external font required)
+        font = ImageFont.load_default()  # No external font needed
 
         # Calculate text position for centering
         text_width, text_height = draw.textsize(text, font=font)
