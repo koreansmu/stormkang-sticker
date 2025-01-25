@@ -290,6 +290,16 @@ def makepack_internal(msg, user, png_sticker, emoji, bot, packname, packnum):
         msg.reply_text("Fᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ sᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋ. Pᴏssɪʙʟʏ ᴅᴜᴇ ᴛᴏ blᴀᴄᴋ mᴀɢɪᴄ🕳.")
 
 
+# Function to generate a user-specific background color based on their username
+def generate_user_color(user_name: str):
+    # Hash the user's name to generate a consistent color
+    user_hash = hashlib.md5(user_name.encode('utf-8')).hexdigest()
+    # Extract RGB values from the hash to generate a color
+    r = int(user_hash[0:2], 16)
+    g = int(user_hash[2:4], 16)
+    b = int(user_hash[4:6], 16)
+    return (r, g, b)
+
 @run_async
 def kang_message(bot: Bot, update: Update):
     msg = update.effective_message
@@ -302,48 +312,53 @@ def kang_message(bot: Bot, update: Update):
 
     # Create a sticker pack name
     packname = f"a{user.id}_by_{bot.username}"
-    sticker_emoji = "✍️"  # Default emoji for sticker
+    sticker_emoji = "✍️"  # Default emoji for the sticker
     kangsticker = "text_sticker.png"
 
-    # Set background color and padding
-    bg_color = (0, 153, 255)  # Light blue color (similar to Telegram's background)
-    padding = 40  # Padding for text and borders
+    # Generate user-specific background color based on their name
+    user_color = generate_user_color(user.full_name or user.username)
+
+    # Set padding, text color, and font size for the sticker
+    padding = 20  # Padding around the text
     text_color = "white"  # Text color
+    font_size = 30  # Font size for the text
 
     # Generate sticker image
     try:
-        # Create a blank image with RGBA mode (supports transparency)
+        # Create an image with RGBA (supports transparency)
         img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
         draw = ImageDraw.Draw(img)
 
-        # Use the default font from PIL (or another font if available)
+        # Use default font or another font available (adjust size accordingly)
         font = ImageFont.load_default()
 
-        # Calculate the size of the text to center it
-        text_bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
-
-        # Calculate space for the user's name and create space between text and name
+        # Draw the user's name at the top
         user_name = user.full_name if user.full_name else user.username
-        user_font = ImageFont.load_default()  # Font for user's name
-        user_name_bbox = draw.textbbox((0, 0), user_name, font=user_font)
-        user_name_width = user_name_bbox[2] - user_name_bbox[0]
+        user_name_width, user_name_height = draw.textsize(user_name, font=font)
 
-        # Set the background (similar to a Telegram chat message bubble)
-        draw.rounded_rectangle(
-            [padding, padding, 512 - padding, 512 - padding], radius=30, fill=bg_color
-        )
+        # Calculate space for the message text (below the name)
+        text_width, text_height = draw.textsize(text, font=font)
 
-        # Draw the main text centered on the sticker
-        text_x = (512 - text_width) // 2
-        text_y = padding + 10
-        draw.text((text_x, text_y), text, font=font, fill=text_color)
+        # Set the dimensions for the background bubble
+        bubble_width = max(user_name_width, text_width) + 2 * padding
+        bubble_height = user_name_height + padding + text_height + padding
+        bubble_x1 = (512 - bubble_width) // 2
+        bubble_y1 = (512 - bubble_height) // 2
+        bubble_x2 = bubble_x1 + bubble_width
+        bubble_y2 = bubble_y1 + bubble_height
 
-        # Draw the user's name below the text
+        # Draw the background bubble (rounded corners)
+        draw.rounded_rectangle([bubble_x1, bubble_y1, bubble_x2, bubble_y2], radius=20, fill=user_color)
+
+        # Draw the user's name at the top
         user_name_x = (512 - user_name_width) // 2
-        user_name_y = text_y + text_height + 10
-        draw.text((user_name_x, user_name_y), user_name, font=user_font, fill=text_color)
+        user_name_y = bubble_y1 + padding
+        draw.text((user_name_x, user_name_y), user_name, font=font, fill=text_color)
+
+        # Draw the message text below the user's name
+        text_x = (512 - text_width) // 2
+        text_y = user_name_y + user_name_height + padding
+        draw.text((text_x, text_y), text, font=font, fill=text_color)
 
         # Save the sticker image
         img.save(kangsticker, "PNG")
