@@ -401,10 +401,10 @@ def kang_text_color(bot: Bot, update: Update, args):
         img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
         draw = ImageDraw.Draw(img)
 
-        # Choose a font
-        font = ImageFont.truetype("arial.ttf", 40)  # Adjust font size as needed
+        # Use default PIL font
+        font = ImageFont.load_default()
 
-        # Center the text
+        # Calculate text size
         text_width, text_height = draw.textsize(text, font=font)
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2 - 30
@@ -417,16 +417,22 @@ def kang_text_color(bot: Bot, update: Update, args):
 
         # Add sticker to pack
         try:
-            bot.add_sticker_to_set(
-                user_id=user.id,
-                name=packname,
-                png_sticker=open(kangsticker, "rb"),
-                emojis=sticker_emoji,
+            with open(kangsticker, "rb") as sticker_file:
+                bot.add_sticker_to_set(
+                    user_id=user.id,
+                    name=packname,
+                    png_sticker=sticker_file,
+                    emojis=sticker_emoji,
+                )
+            msg.reply_text(
+                f"Sticker successfully added to [pack](t.me/addstickers/{packname})",
+                parse_mode=ParseMode.MARKDOWN,
             )
-            msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})", parse_mode=ParseMode.MARKDOWN)
         except TelegramError as e:
             if "Stickerset_invalid" in e.message:
-                makepack_internal(msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0)
+                makepack_internal(
+                    msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0
+                )
             else:
                 msg.reply_text("An error occurred while adding the sticker!")
                 logger.error(e)
