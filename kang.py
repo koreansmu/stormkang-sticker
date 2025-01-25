@@ -290,13 +290,171 @@ def makepack_internal(msg, user, png_sticker, emoji, bot, packname, packnum):
         msg.reply_text("Fᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ sᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋ. Pᴏssɪʙʟʏ ᴅᴜᴇ ᴛᴏ blᴀᴄᴋ mᴀɢɪᴄ🕳.")
 
 
+@run_async
+def kang_message(bot: Bot, update: Update):
+    msg = update.effective_message
+    user = update.effective_user
+    text = msg.reply_to_message.text if msg.reply_to_message and msg.reply_to_message.text else None
+
+    if not text:
+        msg.reply_text("Please reply to a message containing text to create a sticker!")
+        return
+
+    packname = f"a{user.id}_by_{bot.username}"
+    sticker_emoji = "✍️"  # Default emoji
+    kangsticker = "text_sticker.png"
+
+    # Generate sticker image
+    try:
+        # Set up a blank image
+        from PIL import Image, ImageDraw, ImageFont
+        img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Choose a font
+        font = ImageFont.truetype("arial.ttf", 40)  # Adjust font size as needed
+
+        # Center the text
+        text_width, text_height = draw.textsize(text, font=font)
+        text_x = (512 - text_width) // 2
+        text_y = (512 - text_height) // 2
+
+        # Add text
+        draw.text((text_x, text_y), text, font=font, fill="black")
+        img.save(kangsticker, "PNG")
+
+        # Add sticker to pack
+        try:
+            bot.add_sticker_to_set(
+                user_id=user.id,
+                name=packname,
+                png_sticker=open(kangsticker, "rb"),
+                emojis=sticker_emoji,
+            )
+            msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})", parse_mode=ParseMode.MARKDOWN)
+        except TelegramError as e:
+            if "Stickerset_invalid" in e.message:
+                makepack_internal(msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0)
+            else:
+                msg.reply_text("An error occurred while adding the sticker!")
+                logger.error(e)
+    except Exception as e:
+        msg.reply_text("Failed to create a sticker from the text. Ensure all dependencies are installed!")
+        logger.error(e)
+    finally:
+        if os.path.isfile(kangsticker):
+            os.remove(kangsticker)
+
+
+@run_async
+def kang_image(bot: Bot, update: Update):
+    msg = update.effective_message
+    user = update.effective_user
+    reply = msg.reply_to_message
+
+    if not reply or not reply.photo:
+        msg.reply_text("Please reply to an image to create a sticker!")
+        return
+
+    photo = reply.photo[-1].get_file()  # Get the highest resolution photo
+    photo.download("kang_image.png")  # Save it locally
+
+    packname = f"a{user.id}_by_{bot.username}"
+    sticker_emoji = "🖼️"  # Default emoji
+
+    try:
+        bot.add_sticker_to_set(
+            user_id=user.id,
+            name=packname,
+            png_sticker=open("kang_image.png", "rb"),
+            emojis=sticker_emoji,
+        )
+        msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})", parse_mode=ParseMode.MARKDOWN)
+    except TelegramError as e:
+        if "Stickerset_invalid" in e.message:
+            makepack_internal(msg, user, open("kang_image.png", "rb"), sticker_emoji, bot, packname, 0)
+        else:
+            msg.reply_text("An error occurred while adding the sticker!")
+            logger.error(e)
+    finally:
+        if os.path.isfile("kang_image.png"):
+            os.remove("kang_image.png")
+
+
+@run_async
+def kang_text_color(bot: Bot, update: Update, args):
+    msg = update.effective_message
+    user = update.effective_user
+    text = msg.reply_to_message.text if msg.reply_to_message and msg.reply_to_message.text else None
+
+    if not text:
+        msg.reply_text("Please reply to a message containing text to create a sticker!")
+        return
+
+    color = args[0] if args else "black"  # Default color is black
+    packname = f"a{user.id}_by_{bot.username}"
+    sticker_emoji = "✏️"  # Default emoji
+    kangsticker = "text_sticker_colored.png"
+
+    # Generate sticker image
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+
+        img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Choose a font
+        font = ImageFont.truetype("arial.ttf", 40)  # Adjust font size as needed
+
+        # Center the text
+        text_width, text_height = draw.textsize(text, font=font)
+        text_x = (512 - text_width) // 2
+        text_y = (512 - text_height) // 2 - 30
+
+        # Add text and username
+        draw.text((text_x, text_y), text, font=font, fill=color)
+        draw.text((text_x, text_y + 50), f"- {user.first_name}", font=font, fill=color)
+
+        img.save(kangsticker, "PNG")
+
+        # Add sticker to pack
+        try:
+            bot.add_sticker_to_set(
+                user_id=user.id,
+                name=packname,
+                png_sticker=open(kangsticker, "rb"),
+                emojis=sticker_emoji,
+            )
+            msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})", parse_mode=ParseMode.MARKDOWN)
+        except TelegramError as e:
+            if "Stickerset_invalid" in e.message:
+                makepack_internal(msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0)
+            else:
+                msg.reply_text("An error occurred while adding the sticker!")
+                logger.error(e)
+    except Exception as e:
+        msg.reply_text("Failed to create a sticker from the text. Ensure all dependencies are installed!")
+        logger.error(e)
+    finally:
+        if os.path.isfile(kangsticker):
+            os.remove(kangsticker)
+
+
 kang_handler = CommandHandler('kang', kang, pass_args=True)
 kangurl_handler = CommandHandler('kangurl', kangurl, pass_args=True)
 start_handler = CommandHandler('start', start)
+kang_message_handler = CommandHandler('kangtext', kang_message)
+kang_image_handler = CommandHandler('kangimage', kang_image)
+kang_text_color_handler = CommandHandler('kangtextcolor', kang_text_color, pass_args=True)
+
 
 dispatcher.add_handler(kang_handler)
 dispatcher.add_handler(kangurl_handler)
 dispatcher.add_handler(start_handler)
+dispatcher.add_handler(kang_message_handler)
+dispatcher.add_handler(kang_image_handler)
+dispatcher.add_handler(kang_text_color_handler)
 
+# Start polling
 updater.start_polling(timeout=15, read_latency=4)
 updater.idle()
