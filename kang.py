@@ -4,7 +4,7 @@ import math
 import urllib.request as urllib
 
 from io import BytesIO
-from PIL import Image, ImageDraw,
+from PIL import Image, ImageDraw
 ImageFont
 from pyrogram import Client
 
