@@ -2,4 +2,4 @@ Pillow
 pyrogram
 python-telegram-bot==10.1.0
 TgCrypto
-fontconfig==0.6.0
+fontconfig==2.13.1
