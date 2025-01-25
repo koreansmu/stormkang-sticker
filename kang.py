@@ -271,7 +271,7 @@ def makepack_internal(msg, user, png_sticker, emoji, bot, packname, packnum):
         print(e)
         if (
             e.message
-            == "Internal Server Error: cᴄʀᴇᴀᴛᴇᴅ sᴛɪᴄᴋᴇʀ sᴇᴛ ɴᴏᴛ ғᴏᴜɴᴅ (500)"
+            == "Internal Server Error: ᴄʀᴇᴀᴛᴇᴅ sᴛɪᴄᴋᴇʀ sᴇᴛ ɴᴏᴛ ғᴏᴜɴᴅ (500)"
         ):
             msg.reply_text("sᴛɪᴄᴋᴇʀ ᴘᴀᴄᴋ sᴜᴄᴄᴇssғᴜʟʟʏ ᴄʀᴇᴀᴛᴇᴅ. ɢᴇᴛ ɪᴛ [ʜᴇʀᴇ](t.me/addstickers/%s)" % packname,
                    parse_mode=ParseMode.MARKDOWN)
@@ -337,7 +337,9 @@ def kang_image(bot: Bot, update: Update):
 
         # Calculate the text to display at the top (user's first name)
         text = user.first_name
-        text_width, text_height = draw.textsize(text, font=font)
+        bbox = draw.textbbox((0, 0), text, font=font)  # Get bounding box for text
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
         text_x = (img.width - text_width) // 2
         text_y = 10  # Positioning text at the top
 
@@ -409,8 +411,10 @@ def kang_message(bot: Bot, update: Update):
         # Use default font
         font = ImageFont.load_default()
 
-        # Calculate text size
-        text_width, text_height = draw.textsize(text, font=font)
+        # Calculate text size using textbbox
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2 + 20
 
@@ -490,8 +494,10 @@ def kang_text_color(bot: Bot, update: Update, args):
         # Use the default font
         font = ImageFont.load_default()
 
-        # Calculate text size
-        text_width, text_height = draw.textsize(text, font=font)
+        # Calculate text size using textbbox
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2 + 20
 
