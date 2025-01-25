@@ -2,3 +2,4 @@ Pillow
 pyrogram
 python-telegram-bot==10.1.0
 TgCrypto
+requests
