@@ -250,7 +250,7 @@ def kangim(bot: Bot, update: Update, args: List[str]):
         os.remove("profile_pic.jpg")
 
 
-# /kangm Command (to create a sticker pack with customization options)
+# /kangm Command (customized for user with their profile image and name on the sticker)
 @run_async
 def kangm(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message
@@ -271,37 +271,55 @@ def kangm(bot: Bot, update: Update, args: List[str]):
             if e.message == "Stickerset_invalid":
                 packname_found = 1
 
-    # Check if user provided custom background color
+    # Customization options (background color, text, etc.)
     background_color = args[0] if args else "white"  # Default to white if no color is provided
 
-    # Code to handle custom background color and text overlay
-    # You could use Pillow to create a background and overlay the user details (profile pic, name)
     try:
-        profile_picture = pyrogram_client.download_profile_photo(user.id)
-        profile_image = Image.open(profile_picture)
+        # Fetch profile picture
+        profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+        if profile_photos.total_count > 0:
+            # Download the profile picture
+            profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
+            profile_picture.download('profile_pic.jpg')
+        else:
+            msg.reply_text("Could not retrieve your profile picture.")
+            return
 
-        # Create background image with specified color
+        profile_image = Image.open('profile_pic.jpg')
         bg = Image.new("RGB", (512, 512), background_color)
+
+        # Resize the profile image and paste it on the background
+        profile_image = profile_image.resize((100, 100))
         bg.paste(profile_image, (0, 0))
 
-        bg.save('kangsticker_modified.png', "PNG")
+        # Draw text (user's name)
+        draw = ImageDraw.Draw(bg)
+        font = ImageFont.load_default()
+        name = user.first_name
+        draw.text((10, 10), name, font=font, fill=(255, 255, 255))
 
+        bg.save('kangm_sticker.png', "PNG")
         bot.add_sticker_to_set(user_id=user.id, name=packname,
-                               png_sticker=open('kangsticker_modified.png', 'rb'), emojis="🤔")
+                               png_sticker=open('kangm_sticker.png', 'rb'), emojis="🤔")
+
         msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})" +
                         f"\nEmoji is: 🤔", parse_mode=ParseMode.MARKDOWN)
+
     except Exception as e:
         msg.reply_text(f"An error occurred: {str(e)}")
         print(e)
 
-    # Clean up temporary files
-    if os.path.isfile("kangsticker_modified.png"):
-        os.remove("kangsticker_modified.png")
+    # Clean up
+    if os.path.isfile("kangm_sticker.png"):
+        os.remove("kangm_sticker.png")
+    if os.path.isfile("profile_pic.jpg"):
+        os.remove("profile_pic.jpg")
 
 
 # Adding handlers to the dispatcher
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(CommandHandler("kang", kang, pass_args=True))
+dispatcher.add_handler(CommandHandler("kangurl", kangurl, pass_args=True))
 dispatcher.add_handler(CommandHandler("kangim", kangim, pass_args=True))
 dispatcher.add_handler(CommandHandler("kangm", kangm, pass_args=True))
 
