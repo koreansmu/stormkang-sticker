@@ -52,7 +52,6 @@ def start(bot: Bot, update: Update):
     if update.effective_chat.type == "private":
         update.effective_message.reply_text(START_TEXT, parse_mode=ParseMode.MARKDOWN)
 
-
 # /kang Command (to create a sticker pack with no customization)
 @run_async
 def kang(bot: Bot, update: Update, args: List[str]):
@@ -62,6 +61,7 @@ def kang(bot: Bot, update: Update, args: List[str]):
     packnum = 0
     max_stickers = 120
     packname_found = 0
+
     while packname_found == 0:
         try:
             stickerset = bot.get_sticker_set(packname)
@@ -84,47 +84,60 @@ def kang(bot: Bot, update: Update, args: List[str]):
         else:
             msg.reply_text("I can't kang that.")
             return
+
+        # Download the sticker/image
         kang_file = bot.get_file(file_id)
         kang_file.download('kangsticker.png')
 
-        if args:
-            sticker_emoji = str(args[0])
-        else:
-            sticker_emoji = "🤔"
-
+        # Get the user's profile picture and name using Pyrogram
         try:
-            im = Image.open('kangsticker.png')
-            if (im.width and im.height) < 512:
-                size1 = im.width
-                size2 = im.height
-                if im.width > im.height:
-                    scale = 512/size1
-                    size1new = 512
-                    size2new = size2 * scale
-                else:
-                    scale = 512/size2
-                    size1new = size1 * scale
-                    size2new = 512
-                size1new = math.floor(size1new)
-                size2new = math.floor(size2new)
-                sizenew = (size1new, size2new)
-                im = im.resize(sizenew)
+            profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+            if profile_photos.total_count > 0:
+                profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
+                profile_picture.download('profile_pic.jpg')
             else:
-                maxsize = (512, 512)
-                im.thumbnail(maxsize)
+                msg.reply_text("I couldn't retrieve your profile picture.")
+                return
 
-            im.save('kangsticker.png', "PNG")
+            user_name = user.first_name if user.first_name else "No Name"
+
+        except Exception as e:
+            msg.reply_text(f"An error occurred while fetching your profile picture or name: {str(e)}")
+            return
+
+        # Add the user's profile photo and name to the sticker
+        try:
+            sticker_image = Image.open('kangsticker.png')
+            profile_image = Image.open('profile_pic.jpg')
+
+            profile_image = profile_image.resize((100, 100))
+
+            sticker_image.paste(profile_image, (sticker_image.width - 110, sticker_image.height - 110))
+
+            draw = ImageDraw.Draw(sticker_image)
+            font = ImageFont.load_default()
+            draw.text((10, 10), user_name, font=font, fill="white")
+
+            sticker_image.save('kangsticker_with_profile.png', "PNG")
+
+            sticker_emoji = args[0] if args else "🤔"
             bot.add_sticker_to_set(user_id=user.id, name=packname,
-                                    png_sticker=open('kangsticker.png', 'rb'), emojis=sticker_emoji)
+                                    png_sticker=open('kangsticker_with_profile.png', 'rb'), emojis=sticker_emoji)
+
+            if os.path.exists('profile_pic.jpg'):
+                os.remove('profile_pic.jpg')
+            if os.path.exists('kangsticker_with_profile.png'):
+                os.remove('kangsticker_with_profile.png')
+
             msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})" +
                             f"\nEmoji is: {sticker_emoji}", parse_mode=ParseMode.MARKDOWN)
+
         except OSError as e:
-            msg.reply_text("I can only kang images m8.")
+            msg.reply_text("I can only kang images with valid formats.")
             print(e)
             return
     else:
         msg.reply_text("Please reply to a sticker, or image to kang it!")
-
 
 # /kangurl Command (to create a sticker pack from an image URL)
 @run_async
@@ -176,7 +189,7 @@ def kangurl(bot: Bot, update: Update, args: List[str]):
         print(e)
 
 # /kangim Command (to create a sticker pack with image and user details)
-@run_async
+run_async
 def kangim(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message
     user = update.effective_user
@@ -196,20 +209,23 @@ def kangim(bot: Bot, update: Update, args: List[str]):
             if e.message == "Stickerset_invalid":
                 packname_found = 1
 
-    # Check if user provided custom background color
-    background_color = args[0] if args else "white"  # Default to white if no color is provided
-
-    # Code to handle custom background color and text overlay
-    # You could use Pillow to create a background and overlay the user details (profile pic, name)
+    # Handle custom background and text overlay
+    background_color = args[0] if args else "white"
     try:
-        profile_picture = pyrogram_client.download_profile_photo(user.id)
-        profile_image = Image.open(profile_picture)
+        profile_photos = pyrogram_client.get_users_profile_photos(user.id)
+        if profile_photos.total_count > 0:
+            profile_picture = pyrogram_client.get_file(profile_photos.photos[0][-1].file_id)
+            profile_picture.download('profile_pic.jpg')
+        else:
+            msg.reply_text("I couldn't retrieve your profile picture.")
+            return
 
-        # Create background image with specified color
+        profile_image = Image.open('profile_pic.jpg')
+
         bg = Image.new("RGB", (512, 512), background_color)
+        profile_image = profile_image.resize((100, 100))
         bg.paste(profile_image, (0, 0))
 
-        # Add user's name or text on top (custom font can be used)
         draw = ImageDraw.Draw(bg)
         font = ImageFont.load_default()
         name = user.first_name
@@ -219,8 +235,10 @@ def kangim(bot: Bot, update: Update, args: List[str]):
 
         bot.add_sticker_to_set(user_id=user.id, name=packname,
                                png_sticker=open('kangsticker_modified.png', 'rb'), emojis="🤔")
+
         msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})" +
                         f"\nEmoji is: 🤔", parse_mode=ParseMode.MARKDOWN)
+
     except Exception as e:
         msg.reply_text(f"An error occurred: {str(e)}")
         print(e)
