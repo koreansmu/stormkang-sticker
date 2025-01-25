@@ -313,8 +313,10 @@ def kang_message(bot: Bot, update: Update):
         # Use default font from PIL (no external font required)
         font = ImageFont.load_default()  # No external font needed
 
-        # Calculate text position for centering
-        text_width, text_height = draw.textsize(text, font=font)
+        # Calculate text position for centering using textbbox()
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]  # width of the text box
+        text_height = text_bbox[3] - text_bbox[1]  # height of the text box
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2
 
