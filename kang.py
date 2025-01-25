@@ -126,6 +126,55 @@ def kang(bot: Bot, update: Update, args: List[str]):
         msg.reply_text("Please reply to a sticker, or image to kang it!")
 
 
+# /kangurl Command (to create a sticker pack from an image URL)
+@run_async
+def kangurl(bot: Bot, update: Update, args: List[str]):
+    msg = update.effective_message
+    user = update.effective_user
+    if not args:
+        msg.reply_text("Please provide a URL.")
+        return
+    
+    image_url = args[0]
+    
+    try:
+        # Download image from the provided URL
+        file_path = 'kangsticker_from_url.png'
+        urllib.urlretrieve(image_url, file_path)
+
+        # Create a sticker pack name
+        packname = f"a{str(user.id)}_by_{bot.username}"
+        packnum = 0
+        max_stickers = 120
+        packname_found = 0
+
+        while packname_found == 0:
+            try:
+                stickerset = bot.get_sticker_set(packname)
+                if len(stickerset.stickers) >= max_stickers:
+                    packnum += 1
+                    packname = f"a{packnum}_{str(user.id)}_by_{bot.username}"
+                else:
+                    packname_found = 1
+            except TelegramError as e:
+                if e.message == "Stickerset_invalid":
+                    packname_found = 1
+
+        # Add the sticker from the URL to the pack
+        bot.add_sticker_to_set(user_id=user.id, name=packname,
+                               png_sticker=open(file_path, 'rb'), emojis="🤔")
+
+        msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})" +
+                        f"\nEmoji is: 🤔", parse_mode=ParseMode.MARKDOWN)
+
+        # Clean up
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    except Exception as e:
+        msg.reply_text(f"An error occurred: {str(e)}")
+        print(e)
+
 # /kangim Command (to create a sticker pack with image and user details)
 @run_async
 def kangim(bot: Bot, update: Update, args: List[str]):
