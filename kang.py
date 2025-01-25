@@ -389,31 +389,46 @@ def kang_text_color(bot: Bot, update: Update, args):
         msg.reply_text("Please reply to a message containing text to create a sticker!")
         return
 
-    color = args[0] if args else "black"  # Default color is black
+    color = args[0] if args else "black"
     packname = f"a{user.id}_by_{bot.username}"
-    sticker_emoji = "✏️"  # Default emoji
+    sticker_emoji = "✏️"
     kangsticker = "text_sticker_colored.png"
 
-    # Generate sticker image
     try:
         from PIL import Image, ImageDraw, ImageFont
 
         img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
         draw = ImageDraw.Draw(img)
 
-        # Use default PIL font
+        # Use default font
         font = ImageFont.load_default()
 
         # Calculate text size
-        text_width, text_height = draw.textsize(text, font=font)
+        try:
+            text_width, text_height = draw.textsize(text, font=font)
+        except Exception as e:
+            msg.reply_text("Error calculating text size.")
+            logger.error(f"Text size error: {e}")
+            return
+
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2 - 30
 
-        # Add text and username
-        draw.text((text_x, text_y), text, font=font, fill=color)
-        draw.text((text_x, text_y + 50), f"- {user.first_name}", font=font, fill=color)
+        # Draw text
+        try:
+            draw.text((text_x, text_y), text, font=font, fill=color)
+            draw.text((text_x, text_y + 50), f"- {user.first_name}", font=font, fill=color)
+        except Exception as e:
+            msg.reply_text("Error rendering text on the image.")
+            logger.error(f"Text rendering error: {e}")
+            return
 
+        # Save sticker file
         img.save(kangsticker, "PNG")
+
+        if not os.path.isfile(kangsticker):
+            msg.reply_text("Sticker file was not created successfully.")
+            return
 
         # Add sticker to pack
         try:
@@ -430,15 +445,15 @@ def kang_text_color(bot: Bot, update: Update, args):
             )
         except TelegramError as e:
             if "Stickerset_invalid" in e.message:
-                makepack_internal(
-                    msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0
-                )
+                msg.reply_text("The sticker set is invalid. Attempting to create a new pack.")
+                logger.error(f"Stickerset_invalid error: {e}")
+                makepack_internal(msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0)
             else:
-                msg.reply_text("An error occurred while adding the sticker!")
-                logger.error(e)
+                msg.reply_text("An error occurred while adding the sticker to the set.")
+                logger.error(f"TelegramError: {e}")
     except Exception as e:
-        msg.reply_text("Failed to create a sticker from the text. Ensure all dependencies are installed!")
-        logger.error(e)
+        msg.reply_text("An error occurred while creating the sticker.")
+        logger.error(f"General Exception: {e}")
     finally:
         if os.path.isfile(kangsticker):
             os.remove(kangsticker)
