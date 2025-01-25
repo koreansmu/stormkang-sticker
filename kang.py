@@ -307,23 +307,22 @@ def kang_message(bot: Bot, update: Update):
     # Generate sticker image
     try:
         # Set up a blank image
-        from PIL import Image, ImageDraw, ImageFont
         img = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
         draw = ImageDraw.Draw(img)
 
-        # Choose a font
-        font = ImageFont.truetype("arial.ttf", 40)  # Adjust font size as needed
+        # Use default font provided by Pillow
+        font = ImageFont.truetype(ImageFont.load_default().path, 40)  # Default font, size adjustable
 
-        # Center the text
+        # Calculate text position for centering
         text_width, text_height = draw.textsize(text, font=font)
         text_x = (512 - text_width) // 2
         text_y = (512 - text_height) // 2
 
-        # Add text
+        # Draw the text
         draw.text((text_x, text_y), text, font=font, fill="black")
         img.save(kangsticker, "PNG")
 
-        # Add sticker to pack
+        # Add the sticker to the pack
         try:
             bot.add_sticker_to_set(
                 user_id=user.id,
@@ -331,18 +330,17 @@ def kang_message(bot: Bot, update: Update):
                 png_sticker=open(kangsticker, "rb"),
                 emojis=sticker_emoji,
             )
-            msg.reply_text(f"Sticker successfully added to [pack](t.me/addstickers/{packname})", parse_mode=ParseMode.MARKDOWN)
+            msg.reply_text(
+                f"Sticker successfully added to [pack](t.me/addstickers/{packname})",
+                parse_mode=ParseMode.MARKDOWN,
+            )
         except TelegramError as e:
-            if "Stickerset_invalid" in e.message:
-                makepack_internal(msg, user, open(kangsticker, "rb"), sticker_emoji, bot, packname, 0)
-            else:
-                msg.reply_text("An error occurred while adding the sticker!")
-                logger.error(e)
+            msg.reply_text(f"Failed to add sticker: {e.message}")
     except Exception as e:
-        msg.reply_text("Failed to create a sticker from the text. Ensure all dependencies are installed!")
-        logger.error(e)
+        msg.reply_text("An error occurred while creating the sticker.")
+        logger.error(f"Error in kang_message: {e}")
     finally:
-        if os.path.isfile(kangsticker):
+        if os.path.exists(kangsticker):
             os.remove(kangsticker)
 
 
